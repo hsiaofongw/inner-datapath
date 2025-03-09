@@ -33,3 +33,4 @@ done
 
 ipcidr=$(cat data/$(hostname)/ipcidr)
 ip addr add $ipcidr dev "$wgIfName"
+ip link set "$vrfName" up
