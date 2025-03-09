@@ -7,6 +7,7 @@ vRouteTable=42
 ip link add "$vrfName" type vrf table "$vRouteTable"
 ip link add "$wgIfName" type wireguard
 ip link set "$wgIfName" master "$vrfName"
+ip link set "$wgIfName" up
 
 listenPort=$(cat data/$(hostname)/listenport)
 wg set "$wgIfName" listen-port $listenPort
@@ -25,9 +26,9 @@ for f in data/*; do
   
 
   ip=$(echo $ipCidr | awk -F'/' '{print $1}')
-  allowedIps=$(echo $ip/32)
+  allowedIp=$(echo $ip/32)
 
-  wg set "$wgIfName" peer "$peerPubkey" endpoint "$peerEndpoint" allowed-ips $allowedIps
+  wg set "$wgIfName" peer "$peerPubkey" endpoint "$peerEndpoint" allowed-ips $allowedIp
 done
 
 ipcidr=$(cat data/$(hostname)/ipcidr)
