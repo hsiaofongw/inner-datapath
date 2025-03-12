@@ -32,8 +32,6 @@ for f in data/*; do
   wg set "$wgIfName" peer "$peerPubkey" endpoint "$peerEndpoint" allowed-ips $allowedIp
 done
 
-ipcidr=$(cat data/$vmHostName/ipcidr)
-ip addr add $ipcidr dev "$wgIfName"
 
 netnsKey=$(docker inspect $vmHostName --format '{{.NetworkSettings.SandboxKey}}')
 if [ -z "$netnsKey" ]; then
@@ -43,3 +41,5 @@ fi
 
 ip link set "$wgIfName" netns "$netnsKey"
 nsenter --net=$netnsKey ip link set "$wgIfName" up
+ipcidr=$(cat data/$vmHostName/ipcidr)
+nsenter --net=$netnsKey ip addr add $ipcidr dev "$wgIfName"
