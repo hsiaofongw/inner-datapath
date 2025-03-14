@@ -24,7 +24,6 @@ ip link add "$vxlanIfName" type vxlan id "$vni" dstport "$vxlanDstPort" local "$
 
 ip link add "$brIfName" type bridge
 ip link set "$vxlanIfName" master "$brIfName"
-ip link set "$brIfName" master $vrfName
 ip link set "$brIfName" type bridge stp_state 0
 
 ip link set "$brIfName" up
