@@ -6,6 +6,7 @@ vrfName=${VRFNAME:-"vrf-blue"}
 vni=${VNI:-"42"}
 vxlanDstPort=${VXDSTPORT:-"4789"}
 vxlanIfName=${VXIFNAME:-"vxlan42"}
+brIfName=${BRIFNAME:-"br42"}
 
 hostName=$(hostname)
 if [ -z "$hostName" ]; then
@@ -20,5 +21,11 @@ if [ -z "$localIp" ]; then
 fi
 
 ip link add "$vxlanIfName" type vxlan id "$vni" dstport "$vxlanDstPort" local "$localIp" nolearning
-ip link set "$vxlanIfName" master "$vrfName"
+
+ip link add "$brIfName" type bridge
+ip link set "$vxlanIfName" master "$brIfName"
+ip link set "$brIfName" master $vrfName
+ip link set "$brIfName" type bridge stp_state 0
+
+ip link set "$brIfName" up
 ip link set "$vxlanIfName" up
