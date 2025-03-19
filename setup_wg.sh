@@ -1,13 +1,18 @@
 #!/bin/bash
 
 set -e
-randId=$(openssl rand -hex 8)
+randId=$(openssl rand -hex 4)
 if [ -z "$randId" ]; then
   echo "Can't get rand id"
   exit 1
 fi
 
-cont=frr
+syshostname=$(hostname)
+hostname=${HOST:-"$syshostname"}
+echo hostname: $hostname
+
+defaultCont=frr
+cont=${CONTAINER:-"$defaultCont"}
 echo containername: $cont
 
 wgIf=wg-$randId
@@ -15,13 +20,13 @@ echo wgifname: $wgIf
 
 ip link add "$wgIf" type wireguard
 
-listenPort=$(cat data/$(hostname)/listenport)
+listenPort=$(cat data/$hostname/listenport)
 wg set "$wgIf" listen-port $listenPort
-wg set "$wgIf" private-key data/$(hostname)/.private/privkey
+wg set "$wgIf" private-key data/$hostname/.private/privkey
 
 for f in data/*; do
 
-  if [ "$(hostname)" = $(basename $f) ]; then
+  if [ "$hostname" = $(basename $f) ]; then
     continue
   fi
 
@@ -53,10 +58,8 @@ if [ -z "$netns" ]; then
 fi
 
 echo netns: $netns
-
-cat data/$(hostname)/ipcidr | while read -r ipcidr; do
+ip link set "$wgIf" netns "$netns"
+cat data/$hostname/ipcidr | while read -r ipcidr; do
   nsenter "--net=$netns" ip addr add $ipcidr dev "$wgIf"
 done
 nsenter "--net=$netns" ip link set "$wgIf" up
-
-
