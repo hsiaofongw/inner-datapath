@@ -1,6 +1,10 @@
 #!/bin/bash
 
 set -e
+
+scriptPath=$(realpath $0)
+scriptDir=$(dirname $scriptPath)
+
 randId=$(openssl rand -hex 4)
 if [ -z "$randId" ]; then
   echo "Can't get rand id"
@@ -20,11 +24,11 @@ echo wgifname: $wgIf
 
 ip link add "$wgIf" type wireguard
 
-listenPort=$(cat data/$hostname/listenport)
+listenPort=$(cat $scriptDir/data/$hostname/listenport)
 wg set "$wgIf" listen-port $listenPort
-wg set "$wgIf" private-key data/$hostname/.private/privkey
+wg set "$wgIf" private-key $scriptDir/data/$hostname/.private/privkey
 
-for f in data/*; do
+for f in $scriptDir/data/*; do
 
   if [ "$hostname" = $(basename $f) ]; then
     continue
@@ -35,20 +39,13 @@ for f in data/*; do
   peerPubkey=$(cat $f/pubkey)
   peerEndpoint=$peerHost:$peerPort
   
-  allowedIps=""
-  if [ -s "$f/allowedips" ]; then
-    cat $f/allowedips | while read -r allowedip; do
-      allowedIps="$allowedIps,$allowedip"
-    done
-  fi
-  
-  allowedIpsFlags=""
-  if [ -n "$allowedIps" ]; then
-    allowedIps=${allowedIps#","}
-    allowedIpsFlags="allowed-ips $allowedIps"
-  fi
+  IFS=',' mapfile -t lines < $f/allowedips
+  ifsPrev=$IFS
+  IFS=','
+  allowedIps="${lines[*]}"
+  IFS=$ifsPrev
 
-  wg set "$wgIf" peer "$peerPubkey" endpoint "$peerEndpoint" $allowedIpsFlags
+  wg set "$wgIf" peer "$peerPubkey" endpoint "$peerEndpoint" allowed-ips $allowedIps
 done
 
 netns=$(docker inspect $cont --format {{.NetworkSettings.SandboxKey}})

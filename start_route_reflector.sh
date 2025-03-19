@@ -13,3 +13,7 @@ docker run \
   -v $scriptDir/data/$vmHostName/frr/etc:/etc/frr \
   -v $scriptDir/data:/root/data \
   quay.io/frrouting/frr:10.2.1
+
+# --entrypoint /bin/bash \
+# $scriptDir/connect_route_reflector.sh
+# docker exec -dit $vmHostName /usr/lib/frr/docker-start
