@@ -27,7 +27,7 @@ for f in data/*; do
   
 
   ip=$(echo $ipCidr | awk -F'/' '{print $1}')
-  allowedIp=$(echo $ip/32)
+  allowedIp=$(echo $ip/128)
 
   wg set "$wgIfName" peer "$peerPubkey" endpoint "$peerEndpoint" allowed-ips $allowedIp
 done
