@@ -1,12 +1,12 @@
 #!/bin/bash
 
 wgIfName=vrf-blue-wg0
-vrfName=vrf-blue
+# vrfName=vrf-blue
 vRouteTable=42
 
-ip link add "$vrfName" type vrf table "$vRouteTable"
+# ip link add "$vrfName" type vrf table "$vRouteTable"
 ip link add "$wgIfName" type wireguard
-ip link set "$wgIfName" master "$vrfName"
+# ip link set "$wgIfName" master "$vrfName"
 ip link set "$wgIfName" up
 
 listenPort=$(cat data/$(hostname)/listenport)
@@ -33,4 +33,4 @@ done
 
 ipcidr=$(cat data/$(hostname)/ipcidr)
 ip addr add $ipcidr dev "$wgIfName"
-ip link set "$vrfName" up
+# ip link set "$vrfName" up

@@ -2,7 +2,7 @@
 
 set -e
 
-vrfName=${VRFNAME:-"vrf-blue"}
+# vrfName=${VRFNAME:-"vrf-blue"}
 vni=${VNI:-"42"}
 vxlanDstPort=${VXDSTPORT:-"4789"}
 vxlanIfName=${VXIFNAME:-"vxlan42"}
