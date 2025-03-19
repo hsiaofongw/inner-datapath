@@ -51,15 +51,11 @@ for f in data/*; do
   wg set "$wgIf" peer "$peerPubkey" endpoint "$peerEndpoint" $allowedIpsFlags
 done
 
-netns=$(docker inspect frr --format '{{.NetworkSettings.SandboxKey}}')
-if [ -z "$netns" ]; then
-  echo "Can't get netns key"
-  exit 1
-fi
+netns=frr
 
 echo netns: $netns
 ip link set "$wgIf" netns "$netns"
 cat data/$hostname/ipcidr | while read -r ipcidr; do
-  nsenter "--net=$netns" ip addr add $ipcidr dev "$wgIf"
+  ip -n $netns addr add $ipcidr dev "$wgIf"
 done
-nsenter "--net=$netns" ip link set "$wgIf" up
+ip -n $netns link set "$wgIf" up
