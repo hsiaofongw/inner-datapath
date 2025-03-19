@@ -5,7 +5,6 @@ scriptDir=$(dirname $scriptPath)
 
 docker run \
   --privileged \
-  --network host \
   --rm \
   -it \
   --name frr \
