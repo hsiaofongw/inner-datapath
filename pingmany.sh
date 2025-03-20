@@ -6,7 +6,7 @@ for f in data/*; do
   while read -r line; do
     ip=$(echo $line | cut -d '/' -f1)
     if [[ "$ip" == fe80:* ]]; then
-      ip --json a show to "$ip" | jq -r '.[] | .ifname' | while read -r ifname; do
+      ip --json a show to fe80::/64 | jq -r '.[] | .ifname' | while read -r ifname; do
          echo interface: $ifname
 	 ping -n -c1 $ip%$ifname
       done
