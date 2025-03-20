@@ -9,8 +9,7 @@ Todos:
 Ping many:
 
 ```sh
-for f in data/*; do
-  ip=$(cat $f/ipcidr | cut -d '/' -f1)
-  ip vrf exec vrf-blue ping -c1 $ip
-done
+container=frr
+netns=$(docker inspect $container --format {{.NetworkSettings.SandboxKey}})
+nsenter --net=$netns ./pingmany.sh | grep 'bytes from'
 ```
