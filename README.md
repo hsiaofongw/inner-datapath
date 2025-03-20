@@ -18,7 +18,7 @@ Setup VxLAN:
 ```
 container=frr
 netns=$(docker inspect $container --format {{.NetworkSettings.SandboxKey}})
-nsenter --net=$netns ./setup_vxlan.sh
+sudo nsenter --net=$netns ./setup_vxlan.sh
 ```
 
 See BGP sessions summary:
