@@ -39,7 +39,7 @@ for bridgeD in $bridgesD/*; do
       if [ -n "$primaryns" ]; then
         echo "primaryns:" $primaryns
         ip link set $vethname netns $primaryns
-        IPCMD="netns --net=$primaryns ip"
+        IPCMD="nsenter --net=$primaryns ip"
       fi
     fi
   fi

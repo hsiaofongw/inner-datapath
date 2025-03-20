@@ -22,10 +22,11 @@ for bridgeD in $bridgesD/*; do
       primaryns=$(docker inspect $primarycontainer --format {{.NetworkSettings.SandboxKey}})
       if [ -n "$primaryns" ]; then
         echo "primaryns:" $primaryns
-        IPCMD="netns --net=$primaryns ip"
+        IPCMD="nsenter --net=$primaryns ip"
       fi
     fi
   fi
 
   $IPCMD link del $vethname
+  echo "deleteinterface:" $vethname
 done
