@@ -1,6 +1,18 @@
 #!/bin/bash
 
 for f in data/*; do
-  ip=$(cat $f/ipcidr | cut -d '/' -f1)
-  ip vrf exec vrf-blue ping -c1 $ip
+  host=$(basename $f)
+  echo "ping host: $host"
+  while read -r line; do
+    ip=$(echo $line | cut -d '/' -f1)
+    if [[ "$ip" == fe80:* ]]; then
+      ip --json a show to "$ip" | jq -r '.[] | .ifname' | while read -r ifname; do
+         echo interface: $ifname
+	 ping -n -c1 $ip%$ifname
+      done
+    else
+      ping -n -c1 $ip
+    fi
+  done < $f/ipcidr
 done
+
