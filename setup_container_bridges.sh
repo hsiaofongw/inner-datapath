@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 scriptPath=$(realpath $0)
 scriptDir=$(dirname $scriptPath)
 
@@ -33,16 +31,17 @@ for bridgeD in $bridgesD/*; do
   nsenter --net=$secondaryns ip link set $vethname up
 
   IPCMD="ip"
-  primarycontainer=$(cat $bridgeD/primarycontainer)
-  if [ -n "$primarycontainer" ]; then
-    echo "primarycontainer:" $primarycontainer
-    primaryns=$(docker inspect $primarycontainer --format {{.NetworkSettings.SandboxKey}})
-  fi
-
-  if [ -n "$primaryns" ]; then
-    echo "primaryns:" $primaryns
-    ip link set $vethname netns $primaryns
-    IPCMD="netns --net=$primaryns ip"
+  if [ -s "$bridgeD/primarycontainer" ]; then
+    primarycontainer=$(cat $bridgeD/primarycontainer)
+    if [ -n "$primarycontainer" ]; then
+      echo "primarycontainer:" $primarycontainer
+      primaryns=$(docker inspect $primarycontainer --format {{.NetworkSettings.SandboxKey}})
+      if [ -n "$primaryns" ]; then
+        echo "primaryns:" $primaryns
+        ip link set $vethname netns $primaryns
+        IPCMD="netns --net=$primaryns ip"
+      fi
+    fi
   fi
 
   echo "IPCMD:" $IPCMD
@@ -50,6 +49,7 @@ for bridgeD in $bridgesD/*; do
 
   if [ -s "$bridgeD/ipcidr" ]; then
     while read -r ipcidr; do
+      echo ipcidr: $ipcidr
       $IPCMD a add $ipcidr dev $vethname
     done < "$bridgeD/ipcidr"
   fi
