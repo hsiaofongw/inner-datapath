@@ -47,6 +47,9 @@ for bridgeD in $bridgesD/*; do
   echo "IPCMD:" $IPCMD
   $IPCMD link set $vethname up
 
+  # set MTU to 1370 because it's vxlan over wg over eth
+  $IPCMD link set mtu 1370 dev $vethname
+
   if [ -s "$bridgeD/ipcidr" ]; then
     while read -r ipcidr; do
       echo ipcidr: $ipcidr
