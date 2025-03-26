@@ -25,6 +25,8 @@ if [ -z "$pidNetns" ]; then
   exit 1
 fi
 
+echo "pidNetns:" $pidNetns
+
 nskey=$(docker inspect frr --format {{.NetworkSettings.SandboxKey}})
 nsenter --net=$nskey ip --json link show type wireguard | jq -r '.[]|.ifname' | while read ifname; do
   wgIf=$ifname
@@ -45,9 +47,9 @@ nsenter --net=$nskey ip --json link show type wireguard | jq -r '.[]|.ifname' | 
 
   wg set "$wgIf" peer "$peerPubkey" endpoint "$peerEndpoint" allowed-ips $allowedIps
 
-  ip link set "$wgIf" netns "$netns"
+  ip link set "$wgIf" netns "$nskey"
   cat data/$hostname/ipcidr | while read -r ipcidr; do
-    nsenter --net=$netns ip addr add $ipcidr dev "$wgIf"
+    nsenter --net=$nskey ip addr add $ipcidr dev "$wgIf"
   done
-  nsenter --net=$netns ip link set "$wgIf" up
+  nsenter --net=$nskey ip link set "$wgIf" up
 done
