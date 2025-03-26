@@ -27,7 +27,7 @@ fi
 
 echo "pidNetns:" $pidNetns
 
-nskey=$(docker inspect frr --format {{.NetworkSettings.SandboxKey}})
+nskey=$(docker inspect $cont --format {{.NetworkSettings.SandboxKey}})
 nsenter --net=$nskey ip --json link show type wireguard | jq -r '.[]|.ifname' | while read ifname; do
   wgIf=$ifname
   echo wgifname: $wgIf
