@@ -43,3 +43,25 @@ for x in {101..105}; do
   sudo ip vrf exec $vrfname ping -n -c1 10.0.2.$x | grep 'bytes from'
 done
 ```
+
+## First time setup
+
+```sh
+./start_frr.sh
+sudo ./setup_wg.sh
+nskey=$(docker inspect frr --format {{.NetworkSettings.SandboxKey}})
+sudo nsenter --net=$nskey ./setup_vxlan.sh
+./setup_bridges.sh # do this only after bird is up
+```
+
+## Add new node
+
+In the new node, do `First time setup` as stated above. 
+Then, for each node (including routereflector), run `add_wg_peer.sh`
+
+## How to add peer
+
+```sh
+./add_wg_peer.sh data/<nodename>
+sudo CONTAINER=routereflector ./add_wg_peer.sh data/sydney1.exploro.one # for routereflector
+```
