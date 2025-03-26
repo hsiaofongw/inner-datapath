@@ -70,3 +70,12 @@ sudo \
   HOST=routereflector \
   ./add_wg_peer.sh data/sydney1.exploro.one
 ```
+
+## Dump all images to another host
+
+```sh
+docker image ls --format json | jq -r '.ID' | while read imgid; do
+  echo sending: $imgid
+  docker image save $imgid | ssh <target_node> docker image load
+done
+```
