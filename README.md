@@ -63,5 +63,10 @@ Then, for each node (including routereflector), run `add_wg_peer.sh`
 
 ```sh
 ./add_wg_peer.sh data/<nodename>
-sudo CONTAINER=routereflector ./add_wg_peer.sh data/sydney1.exploro.one # for routereflector
+
+# for routereflector
+sudo \
+  CONTAINER=routereflector \
+  HOST=routereflector \
+  ./add_wg_peer.sh data/sydney1.exploro.one
 ```
