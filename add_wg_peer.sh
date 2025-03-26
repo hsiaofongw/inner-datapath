@@ -11,14 +11,26 @@ if [ -z "$peerDir" ]; then
   exit 1
 fi
 
+syshostname=$(hostname)
+hostname=${HOST:-"$syshostname"}
+echo hostname: $hostname
+
 defaultCont=frr
 cont=${CONTAINER:-"$defaultCont"}
 echo containername: $cont
+
+pidNetns=$$
+if [ -z "$pidNetns" ]; then
+  echo "Can't get current pid."
+  exit 1
+fi
 
 nskey=$(docker inspect frr --format {{.NetworkSettings.SandboxKey}})
 nsenter --net=$nskey ip --json link show type wireguard | jq -r '.[]|.ifname' | while read ifname; do
   wgIf=$ifname
   echo wgifname: $wgIf
+
+  nsenter --net=$nskey ip link set netns $pidNetns dev $wgIf
 
   peerHost=$(cat $peerDir/clearnet)
   peerPort=$(cat $peerDir/listenport)
@@ -31,5 +43,11 @@ nsenter --net=$nskey ip --json link show type wireguard | jq -r '.[]|.ifname' | 
   allowedIps="${lines[*]}"
   IFS=$ifsPrev
 
-  nsenter --net=$nskey wg set "$wgIf" peer "$peerPubkey" endpoint "$peerEndpoint" allowed-ips $allowedIps
+  wg set "$wgIf" peer "$peerPubkey" endpoint "$peerEndpoint" allowed-ips $allowedIps
+
+  ip link set "$wgIf" netns "$netns"
+  cat data/$hostname/ipcidr | while read -r ipcidr; do
+    nsenter --net=$netns ip addr add $ipcidr dev "$wgIf"
+  done
+  nsenter --net=$netns ip link set "$wgIf" up
 done
