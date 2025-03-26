@@ -31,5 +31,5 @@ nsenter --net=$nskey ip --json link show type wireguard | jq -r '.[]|.ifname' | 
   allowedIps="${lines[*]}"
   IFS=$ifsPrev
 
-  wg set "$wgIf" peer "$peerPubkey" endpoint "$peerEndpoint" allowed-ips $allowedIps
+  nsenter --net=$nskey wg set "$wgIf" peer "$peerPubkey" endpoint "$peerEndpoint" allowed-ips $allowedIps
 done
