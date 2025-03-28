@@ -54,28 +54,12 @@ sudo nsenter --net=$nskey ./setup_vxlan.sh
 ./setup_bridges.sh # do this only after bird is up
 ```
 
-## Add new node
-
-In the new node, do `First time setup` as stated above. 
-Then, for each node (including routereflector), run `add_wg_peer.sh`
-
-## How to add peer
-
-```sh
-./add_wg_peer.sh data/<nodename>
-
-# for routereflector
-sudo \
-  CONTAINER=routereflector \
-  HOST=routereflector \
-  ./add_wg_peer.sh data/sydney1.exploro.one
-```
-
 ## Dump all images to another host
 
 ```sh
-docker image ls --format json | jq -r '.ID' | while read imgid; do
-  echo sending: $imgid
+docker image ls --format {{.Repository}}:{{.Tag}} | while read img; do
+  echo img: $img
   docker image save $imgid | ssh <target_node> docker image load
 done
 ```
+
