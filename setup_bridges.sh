@@ -11,5 +11,5 @@ if ! [ -d "$bridgesD" ]; then
 fi
 
 for bridgeD in $bridgesD/*; do
-  $scriptPath/setup_br.sh $bridgeD
+  $scriptDir/setup_br.sh $bridgeD
 done
